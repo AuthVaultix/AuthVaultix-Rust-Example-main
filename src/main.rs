@@ -2,12 +2,12 @@ use AuthVaultix_rust::AuthVaultix;
 use std::io;
 
 fn main() {
-    let mut AuthVaultixApp = AuthVaultix::new(
-    "Teamdeveloperxd",
-    "5d36476ca4",
-    "4e1d8a87787f8af61c5462d12ee16e1f06d53fe314c78e985571db65f0007178",
+let mut AuthVaultixApp = AuthVaultix::new(
+    "your_app_name",
+    "your_owner_id",
+    "your_secret",
     "1.0"
-    );
+);
 
     println!("Connecting...");
     AuthVaultixApp.init();

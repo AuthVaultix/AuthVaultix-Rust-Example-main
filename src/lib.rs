@@ -2,7 +2,7 @@ use reqwest::blocking::Client;
 use serde::Deserialize;
 use std::collections::HashMap;
 
-const BASE_URL: &str = "https://api.authvaultix.com/api/1.2/";
+const BASE_URL: &str = "https://authvaultix.com/api/1.0/";
 
 #[derive(Deserialize)]
 struct ApiResponse<T> {
