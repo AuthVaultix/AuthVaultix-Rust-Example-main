@@ -1,6 +1,7 @@
 use reqwest::blocking::Client;
 use serde::Deserialize;
 use std::collections::HashMap;
+use chrono::{Local, TimeZone};
 
 const BASE_URL: &str = "https://authvaultix.com/api/1.0/";
 
@@ -151,26 +152,68 @@ impl AuthVaultix {
         }
     }
 
-    fn print_user_info(info: &UserInfo) {
-        println!("\n👤 User Info:");
-        println!(" Username: {}", info.username);
-        if let Some(ip) = &info.ip {
-            println!(" IP: {}", ip);
+fn print_user_info(info: &UserInfo) {
+    println!("\n=== User Data ===");
+
+    println!("Username: {}", info.username);
+
+    if let Some(ip) = &info.ip {
+        println!("IP: {}", ip);
+    }
+
+    if let Some(hwid) = &info.hwid {
+        println!("HWID: {}", hwid);
+    }
+
+    // 🕒 safe string → date
+    
+
+    fn format_date(ts: &str) -> String {
+        if let Ok(parsed) = ts.parse::<i64>() {
+            if let Some(dt) = chrono::DateTime::from_timestamp(parsed, 0) {
+                let local = Local.from_utc_datetime(&dt.naive_utc());
+                return local.format("%Y-%m-%d %I:%M:%S %p").to_string();
+            }
         }
-        if let Some(hwid) = &info.hwid {
-            println!(" HWID: {}", hwid);
-        }
-        if let Some(subs) = &info.subscriptions {
-            println!(" Subscriptions:");
-            for s in subs {
+        ts.to_string()
+    }
+    if let Some(created) = &info.createdate {
+        println!("Created: {}", format_date(created));
+    }
+
+    if let Some(last) = &info.lastlogin {
+        println!("Last Login: {}", format_date(last));
+    }
+
+    // ⏳ timeleft formatter
+    fn format_timeleft(seconds: u64) -> String {
+        let d = seconds / 86400;
+        let h = (seconds % 86400) / 3600;
+        let m = (seconds % 3600) / 60;
+        format!("{}d {}h {}m", d, h, m)
+    }
+
+    if let Some(subs) = &info.subscriptions {
+        if !subs.is_empty() {
+            println!("\nSubscriptions:");
+
+            for (i, s) in subs.iter().enumerate() {
+                let expiry = format_date(&s.expiry);
+                let timeleft = format_timeleft(s.timeleft);
+
                 println!(
-                    "  - {} (Expires: {}, Left: {}s)",
-                    s.subscription, s.expiry, s.timeleft
+                    "[{}] {} | Expiry: {} | Timeleft: {}",
+                    i + 1,
+                    s.subscription,
+                    expiry,
+                    timeleft
                 );
             }
         }
-        println!();
     }
+
+    println!();
+}
 
 fn get_hwid() -> String {
 

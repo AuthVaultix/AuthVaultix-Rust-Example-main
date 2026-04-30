@@ -3,9 +3,9 @@ use std::io;
 
 fn main() {
 let mut AuthVaultixApp = AuthVaultix::new(
-    "your_app_name",
-    "your_owner_id",
-    "your_secret",
+    "",
+    "",
+    "",
     "1.0"
 );
 
