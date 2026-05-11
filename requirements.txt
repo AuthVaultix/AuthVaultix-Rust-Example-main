@@ -1,4 +1,5 @@
 rustc --version
 cargo --version
+cargo add base64
 cargo build
 cargo run
