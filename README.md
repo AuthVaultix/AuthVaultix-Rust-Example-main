@@ -172,6 +172,49 @@ app.license_login("LICENSE-KEY");
 
 ---
 
+## ⚙️ API Reference
+
+### Authentication & Session
+| Method | Returns | Description |
+|---|---|---|
+| `init()` | `()` | Initializes the session with the API. |
+| `login(username, pass)` | `()` | Authenticates a user. |
+| `register(username, pass, license, email)` | `()` | Registers a new user. |
+| `license_login(license)` | `()` | Authenticates directly via license key. |
+| `check()` | `bool` | Validates the current session. |
+| `logout()` | `()` | Terminates session. |
+
+### Account Management
+| Method | Returns | Description |
+|---|---|---|
+| `upgrade(username, license)` | `bool` | Upgrades user's subscription. |
+| `forgot_password(username, email)` | `bool` | Triggers a password reset email. |
+| `change_username(new_username)` | `()` | Changes the current user's username. |
+
+### Security & Logging
+| Method | Returns | Description |
+|---|---|---|
+| `ban(reason)` | `bool` | Bans the currently authenticated user. |
+| `check_blacklist()` | `bool` | Checks if the current HWID is blacklisted. |
+| `log(message)` | `bool` | Sends a log message to the dashboard. |
+
+### Variables & Data
+| Method | Returns | Description |
+|---|---|---|
+| `get_global_var(varid)` | `Option<String>` | Fetches a global server variable. |
+| `get_var(var_name)` | `Option<String>` | Fetches a user-specific variable. |
+| `set_var(var_name, value)` | `bool` | Sets a user-specific variable. |
+| `download(fileid)` | `Option<Vec<u8>>` | Securely downloads a file into a byte vector. |
+
+### Communication
+| Method | Returns | Description |
+|---|---|---|
+| `fetch_online()` | `Option<Vec<OnlineUser>>` | Retrieves a list of online clients. |
+| `chat_send(message, channel)` | `bool` | Sends a chat message. |
+| `chat_fetch(channel)` | `Option<Vec<ChatMessage>>` | Fetches chat history for a channel. |
+
+---
+
 ## 📦 Dependencies
 
 | Crate | Version | Purpose |
