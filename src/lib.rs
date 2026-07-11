@@ -208,6 +208,12 @@ impl AuthVaultixCore {
             .with_value("username", username)
             .with_value("pass", pass)
             .with_value("hwid", &hwid)
+            .with_value("os", &SystemInfoCollector::get_os_version())
+            .with_value("platform", &SystemInfoCollector::get_platform())
+            .with_value("device", &SystemInfoCollector::get_device_type())
+            .with_value("architecture", &SystemInfoCollector::get_architecture())
+            .with_value("cpu_cores", &SystemInfoCollector::get_cpu_cores())
+            .with_value("ram", &SystemInfoCollector::get_ram_gb())
             .compile();
 
         let resp: ApiResponse<UserInfo> = NetworkAgent::post(BASE_URL, &payload);
@@ -614,4 +620,81 @@ fn get_hwid() -> String {
         }
     }
     "UNKNOWN_HWID".to_string()
+}
+
+struct SystemInfoCollector;
+
+impl SystemInfoCollector {
+    fn get_os_version() -> String {
+        let caption = if let Ok(output) = std::process::Command::new("powershell")
+            .args(["-Command", "(Get-CimInstance Win32_OperatingSystem).Caption"])
+            .output()
+        {
+            let text = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            if text.starts_with("Microsoft ") {
+                text["Microsoft ".len()..].to_string()
+            } else {
+                text
+            }
+        } else {
+            "".to_string()
+        };
+
+        let version = if let Ok(output) = std::process::Command::new("powershell")
+            .args(["-Command", "(Get-CimInstance Win32_OperatingSystem).Version"])
+            .output()
+        {
+            String::from_utf8_lossy(&output.stdout).trim().to_string()
+        } else {
+            "".to_string()
+        };
+
+        if caption.is_empty() && version.is_empty() {
+            return "Windows".to_string();
+        }
+        format!("{} ({})", caption, version)
+    }
+
+    fn get_platform() -> String {
+        "native".to_string()
+    }
+
+    fn get_device_type() -> String {
+        "Desktop".to_string()
+    }
+
+    fn get_architecture() -> String {
+        std::env::var("PROCESSOR_ARCHITECTURE").unwrap_or_else(|_| "X64".to_string()).to_uppercase()
+    }
+
+    fn get_cpu_cores() -> String {
+        let physical_cores = if let Ok(output) = std::process::Command::new("powershell")
+            .args(["-Command", "(Get-CimInstance Win32_Processor).NumberOfCores"])
+            .output()
+        {
+            String::from_utf8_lossy(&output.stdout).trim().to_string()
+        } else {
+            "".to_string()
+        };
+        let logical_processors = std::env::var("NUMBER_OF_PROCESSORS").unwrap_or_else(|_| "2".to_string());
+
+        let cores = if physical_cores.is_empty() {
+            logical_processors.clone()
+        } else {
+            physical_cores
+        };
+
+        format!("{} Cores / {} Threads", cores, logical_processors)
+    }
+
+    fn get_ram_gb() -> String {
+        if let Ok(output) = std::process::Command::new("powershell")
+            .args(["-Command", "[Math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB)"])
+            .output()
+        {
+            String::from_utf8_lossy(&output.stdout).trim().to_string()
+        } else {
+            "0".to_string()
+        }
+    }
 }
