@@ -208,6 +208,7 @@ impl AuthVaultixCore {
             .with_value("username", username)
             .with_value("pass", pass)
             .with_value("hwid", &hwid)
+	        .with_value("version", &self.version)
             .with_value("os", &SystemInfoCollector::get_os_version())
             .with_value("platform", &SystemInfoCollector::get_platform())
             .with_value("device", &SystemInfoCollector::get_device_type())
@@ -251,6 +252,13 @@ impl AuthVaultixCore {
             .with_value("key", license)
             .with_value("email", email)
             .with_value("hwid", &hwid)
+	        .with_value("version", &self.version)
+            .with_value("os", &SystemInfoCollector::get_os_version())
+            .with_value("platform", &SystemInfoCollector::get_platform())
+            .with_value("device", &SystemInfoCollector::get_device_type())
+            .with_value("architecture", &SystemInfoCollector::get_architecture())
+            .with_value("cpu_cores", &SystemInfoCollector::get_cpu_cores())
+            .with_value("ram", &SystemInfoCollector::get_ram_gb())
             .compile();
 
         let resp: ApiResponse<UserInfo> = NetworkAgent::post(BASE_URL, &payload);
@@ -264,6 +272,13 @@ impl AuthVaultixCore {
             .with_context(&self.name, &self.ownerid, self.sessionid.as_ref())
             .with_value("key", license)
             .with_value("hwid", &hwid)
+	        .with_value("version", &self.version)
+            .with_value("os", &SystemInfoCollector::get_os_version())
+            .with_value("platform", &SystemInfoCollector::get_platform())
+            .with_value("device", &SystemInfoCollector::get_device_type())
+            .with_value("architecture", &SystemInfoCollector::get_architecture())
+            .with_value("cpu_cores", &SystemInfoCollector::get_cpu_cores())
+            .with_value("ram", &SystemInfoCollector::get_ram_gb())
             .compile();
 
         let resp: ApiResponse<UserInfo> = NetworkAgent::post(BASE_URL, &payload);
